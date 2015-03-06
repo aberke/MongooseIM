@@ -134,7 +134,10 @@ create_metrics(Host) ->
                   get_general_counters(Host)),
 
     lists:foreach(fun(Name) -> ensure_metric(Name, counter) end,
-                  get_total_counters(Host)).
+                  get_total_counters(Host)),
+
+    lists:foreach(fun(Name) -> ensure_metric(Name, histogram) end,
+                  get_histograms(Host)).
 
 ensure_metric({Host, Metric}, Type) ->
     case exometer:info([Host, Metric], type) of
@@ -207,7 +210,7 @@ metrics_hooks(Op, Host) ->
 
 -spec get_general_counters(ejabberd:server()) -> [{ejabberd:server(), atom()}].
 get_general_counters(Host) ->
-    [{Host, Counter} || Counter <- ?GENERAL_COUNTERS].
+    get_counters(Host, ?GENERAL_COUNTERS).
 
 -define (TOTAL_COUNTERS, [
     sessionCount
@@ -217,7 +220,16 @@ get_general_counters(Host) ->
 -spec get_total_counters(ejabberd:server()) ->
     [{ejabberd:server(),'sessionCount'}].
 get_total_counters(Host) ->
-    [{Host, Counter} || Counter <- ?TOTAL_COUNTERS].
+    get_counters(Host, ?TOTAL_COUNTERS).
+
+-define (HISTOGRAMS, [
+    mam_archive_time,
+    mam_lookup_time
+
+]).
+
+get_histograms(Host) ->
+    get_counters(Host, ?HISTOGRAMS).
 
 -define(GLOBAL_COUNTERS,
         [{[global, totalSessionCount],
@@ -232,3 +244,6 @@ get_total_counters(Host) ->
 create_global_metrics() ->
     lists:foreach(fun({Metric, Spec}) -> exometer:new(Metric, Spec) end,
                   ?GLOBAL_COUNTERS).
+
+get_counters(Host, Counters) ->
+    [{Host, Counter} || Counter <- Counters].
