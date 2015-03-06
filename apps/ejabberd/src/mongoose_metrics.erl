@@ -19,6 +19,7 @@
 
 %% API
 -export([update/2,
+         start_reporting/3,
          get_metric_value/1,
          get_metric_values/1,
          get_host_metric_names/1,
@@ -34,6 +35,18 @@
 -spec update({term(), term()}, term()) -> no_return().
 update(Name, Change) ->
     exometer:update(tuple_to_list(Name), Change).
+
+start_reporting(Host, GraphiteHost, Interval) ->
+    GraphiteOpts = [{prefix, "exometer." ++ atom_to_list(node())},
+        {host, GraphiteHost},
+        {connect_timeout, 5000},
+        {port, 2003},
+        {api_key, ""}],
+    exometer_report:add_reporter(exometer_report_graphite, GraphiteOpts),
+    subscribe_metrics([count, one], Interval, get_general_counters(Host)),
+    subscribe_metrics([value], Interval, get_total_counters(Host)),
+    subscribe_metrics([mean, max, 95, 99, 999, median], Interval, get_histograms(Host)),
+    ok.
 
 get_host_metric_names(Host) ->
     [MetricName || {[_Host, MetricName | _], _, _} <- exometer:find_entries([Host])].
@@ -247,3 +260,7 @@ create_global_metrics() ->
 
 get_counters(Host, Counters) ->
     [{Host, Counter} || Counter <- Counters].
+
+subscribe_metrics(DataPoints, Interval, Metrics) ->
+    [exometer_report:subscribe(exometer_report_graphite, tuple_to_list(Metric), DataPoints, Interval)
+     || Metric <- Metrics].
