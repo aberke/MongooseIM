@@ -144,6 +144,7 @@
                     var oMsg = new JSJaCMessage();
                     oMsg.setTo(new JSJaCJID(oForm.sendTo.value));
                     oMsg.setBody(oForm.msg.value);
+                    console.log("sending message: ", oMsg);
                     con.send(oMsg);
 
                     oForm.msg.value = '';
@@ -266,7 +267,7 @@
                 <table>
                     <tr>
                         <th><label for="http_base">HTTP Base</label></th><td>
-                        <input type="text" name="http_base" id="http_base" tabindex="3" value="/http-bind/"/>
+                        <input type="text" name="http_base" id="http_base" tabindex="3" size="60" value="ws://localhost:5280/ws-xmpp/"/>
                         </td>
                     </tr>
                     <tr>
@@ -284,12 +285,12 @@
                     </tr>
                     <tr>
                         <th><label for="username">Username</label></th><td>
-                        <input type="text" name="username" id="username" tabindex="5"/>
+                        <input placeholder="user1" type="text" name="username" id="username" tabindex="5"/>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="password">Password</label></th><td>
-                        <input type="password" name="password" id="password" tabindex="6" />
+                        <input placeholder="password" type="password" name="password" id="password" tabindex="6" />
                         </td>
                     </tr>
                     <tr>

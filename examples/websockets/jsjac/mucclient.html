@@ -36,8 +36,13 @@
 
                 document.getElementById('curr_subj').innerHTML = subj;
             }
+            function isSMS(oJSJaCPacket) {
+                var child = oJSJaCPacket.getChild();
+                // if (child.)
+            }
 
             function handleMessage(oJSJaCPacket) {
+                console.log("handleMessage", oJSJaCPacket);
                 var html = '';
                 var from = oJSJaCPacket.getFromJID().getResource();
                 if (from == '') 
@@ -46,6 +51,27 @@
                 if(subj != null)
                     setSubject(from, subj);
                 var body = oJSJaCPacket.getBody().htmlEnc();
+                console.log("body: ", body);
+
+                var type = oJSJaCPacket.getType();
+                var child = oJSJaCPacket.getChild();
+                var xml = oJSJaCPacket.xml();
+                console.log("packet attributes", oJSJaCPacket.attributes);
+                console.log("xml attributes", xml.attributes);
+
+                console.log("type", type);
+                console.log("child", child, typeof(child));
+                console.log(child);
+                console.log(child.attributes);
+                console.log("xml");
+                console.log(xml);
+                console.log(typeof(xml));
+
+                var sms = oJSJaCPacket.getChildVal('sms');
+                console.log('sms', sms);
+                console.log('body', oJSJaCPacket.getBody());
+                console.log('body', oJSJaCPacket.getChildVal('body'));
+
                 if(body != '') {
                     html += '<div class="msg"><b>Received Message from ' + from + ':</b><br/>';
                     html += body + '</div>';
@@ -179,6 +205,7 @@
 
                     setupCon(con);
 
+
                     // setup args for connect method
                     oArgs = new Object();
                     oArgs.domain = oForm.server.value;
@@ -186,6 +213,7 @@
                     oArgs.resource = 'jsjac_simpleclient';
                     oArgs.pass = oForm.password.value;
                     oArgs.register = oForm.register.checked;
+                    console.log("Sending oArgs: ", oArgs);
                     con.connect(oArgs);
                 } catch (e) {
                     document.getElementById('err').innerHTML = e.toString();
@@ -368,7 +396,7 @@
                 <table>
                     <tr>
                         <th><label for="http_base">HTTP Base</label></th><td>
-                        <input type="text" name="http_base" id="http_base" tabindex="3" size="60" value="ws://localhost:5288/ws-xmpp/"/>
+                        <input type="text" name="http_base" id="http_base" tabindex="3" size="60" value="ws://localhost:5280/ws-xmpp/"/>
                         </td>
                     </tr>
                     <tr>
@@ -391,22 +419,22 @@
                     </tr>
                     <tr>
                         <th><label for="username">Username</label></th><td>
-                        <input type="text" name="username" id="username" tabindex="5"/>
+                        <input placeholder="user1" type="text" name="username" id="username" tabindex="5"/>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="password">Password</label></th><td>
-                        <input type="password" name="password" id="password" tabindex="6" />
+                        <input value="welcome2mast" placeholder="password" type="password" name="password" id="password" tabindex="6" />
                         </td>
                     </tr>
 					<tr>
 					    <th><label for="room">Room</label></th><td>
-						<input type="text" name="room" id="room" tabindex="7" />
+						<input placeholder="a" value="user100user2" type="text" name="room" id="room" tabindex="7" />
 						</td>
 					</tr>
 					<tr>
 					    <th><label for="nick">Nickname</label></th><td>
-						<input type="text" name="nick" id="nick" tabindex="8" />
+						<input placeholder="u1" type="text" name="nick" id="nick" tabindex="8" />
 						</td>
 					</tr>
                     <tr>
@@ -437,15 +465,17 @@
                     <input type="button" value="Quit" tabindex="4" onclick="return quit();">
                 </div>
             </form>
-            <h2>Set subject</h2>
-            <form name="subjForm" onsubmit="return sendSubj(this);" action="#">
-                <div class="spaced">
-                    <input type="text" size="80" id="subjBox" name="subj" />
+            <div id="set-subject" style="display:none">
+                <h2>Set subject</h2>
+                <form style="display:none" name="subjForm" onsubmit="return sendSubj(this);" action="#">
                     <div class="spaced">
-                        <input type="submit" value="Set subject">
+                        <input type="text" size="80" id="subjBox" name="subj" />
+                        <div class="spaced">
+                            <input type="submit" value="Set subject">
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </body>
 </html>
